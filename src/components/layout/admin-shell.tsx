@@ -61,7 +61,7 @@ export function AdminShell({
 
       <Sidebar $sidebarOpen={isSidebarOpen}>
         <BrandBlock $sidebarOpen={isSidebarOpen}>
-          <BrandKicker>SCTec</BrandKicker>
+          <BrandKicker>SCTEC</BrandKicker>
           <SidebarTitle $hidden={!isSidebarOpen}>Painel</SidebarTitle>
         </BrandBlock>
 

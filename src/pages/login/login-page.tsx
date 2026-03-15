@@ -29,7 +29,7 @@ export function LoginPage({ onSuccess }: LoginPageProps) {
     <LoginPageContainer>
       <LoginCard>
         <LoginCardHeader>
-          <Brand>SCTec</Brand>
+          <Brand>SCTEC</Brand>
           <Title>Entrar na plataforma</Title>
           <Subtitle>
             Use suas credenciais para acessar o painel de gestao.
