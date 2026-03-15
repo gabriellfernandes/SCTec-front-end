@@ -1,4 +1,4 @@
-import type { LoginRequest, LoginResponse } from '../../types/auth';
+import type { AuthUser, LoginRequest, LoginResponse } from '../../types/auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api';
 
@@ -24,4 +24,27 @@ export async function login(request: LoginRequest): Promise<LoginResponse> {
   }
 
   return (await response.json()) as LoginResponse;
+}
+
+export async function me(token: string): Promise<AuthUser> {
+  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as
+      | { message?: string | string[] }
+      | null;
+
+    const message = Array.isArray(payload?.message)
+      ? payload?.message[0]
+      : payload?.message;
+
+    throw new Error(message ?? 'Falha ao obter usuario autenticado');
+  }
+
+  return (await response.json()) as AuthUser;
 }

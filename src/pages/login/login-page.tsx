@@ -1,7 +1,21 @@
 import { LoginForm } from '../../components/auth/login-form';
 import { useLoginForm } from '../../hooks/use-login-form';
+import {
+  Brand,
+  LoginCard,
+  LoginCardFooter,
+  LoginCardHeader,
+  LoginPageContainer,
+  Subtitle,
+  SuccessText,
+  Title,
+} from './login-page.styles';
 
-export function LoginPage() {
+type LoginPageProps = {
+  onSuccess: () => void;
+};
+
+export function LoginPage({ onSuccess }: LoginPageProps) {
   const {
     form,
     user,
@@ -9,18 +23,18 @@ export function LoginPage() {
     errorMessage,
     updateField,
     handleSubmit,
-  } = useLoginForm();
+  } = useLoginForm(onSuccess);
 
   return (
-    <main className="login-page">
-      <section className="login-card">
-        <header className="login-card-header">
-          <p className="brand">SCTec</p>
-          <h2>Entrar na plataforma</h2>
-          <p className="subtitle">
+    <LoginPageContainer>
+      <LoginCard>
+        <LoginCardHeader>
+          <Brand>SCTEC</Brand>
+          <Title>Entrar na plataforma</Title>
+          <Subtitle>
             Use suas credenciais para acessar o painel de gestao.
-          </p>
-        </header>
+          </Subtitle>
+        </LoginCardHeader>
 
         <LoginForm
           email={form.email}
@@ -33,15 +47,15 @@ export function LoginPage() {
         />
 
         {user ? (
-          <p className="success-text">
+          <SuccessText>
             Login realizado como {user.name} ({user.role})
-          </p>
+          </SuccessText>
         ) : null}
 
-        <footer className="login-card-footer">
+        <LoginCardFooter>
           <small>Ambiente protegido para usuarios autorizados.</small>
-        </footer>
-      </section>
-    </main>
+        </LoginCardFooter>
+      </LoginCard>
+    </LoginPageContainer>
   );
 }
