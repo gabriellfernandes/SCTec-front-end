@@ -36,6 +36,9 @@ export const Sidebar = styled.aside<{ $sidebarOpen: boolean }>`
   color: ${({ theme }) => theme.colors.textSidebarStrong};
   padding: ${({ $sidebarOpen }) => ($sidebarOpen ? '26px 18px' : '26px 10px')};
   border-right: 1px solid ${({ theme }) => theme.colors.sidebarBorder};
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 
   @media (max-width: 980px) {
     position: fixed;
@@ -84,10 +87,78 @@ export const Nav = styled.nav`
   gap: 6px;
 `;
 
-export const NavItem = styled.a<{ $active?: boolean; $collapsed?: boolean }>`
-  color: ${({ theme }) => theme.colors.textSidebar};
-  text-decoration: none;
+export const SidebarFooter = styled.footer<{ $sidebarOpen: boolean }>`
+  margin-top: auto;
+  border-top: 1px solid rgba(231, 238, 248, 0.2);
+  padding: ${({ $sidebarOpen }) => ($sidebarOpen ? '12px 8px 0' : '12px 2px 0')};
+  display: grid;
+  gap: 10px;
+
+  @media (max-width: 980px) {
+    padding: 12px 8px 0;
+  }
+`;
+
+export const UserIdentity = styled.div<{ $sidebarOpen: boolean }>`
+  display: ${({ $sidebarOpen }) => ($sidebarOpen ? 'grid' : 'none')};
+  gap: 2px;
+
+  strong {
+    color: #ffffff;
+    font-size: 0.88rem;
+    line-height: 1.2;
+  }
+
+  span {
+    color: #bcd2f1;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+  }
+
+  @media (max-width: 980px) {
+    display: grid;
+  }
+`;
+
+export const LogoutButton = styled.button<{ $collapsed: boolean }>`
+  width: 100%;
+  height: 34px;
+  border: 1px solid #35557f;
   border-radius: 8px;
+  background: rgba(17, 34, 58, 0.36);
+  color: #d8e6fb;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  span {
+    display: ${({ $collapsed }) => ($collapsed ? 'none' : 'inline')};
+  }
+
+  @media (max-width: 980px) {
+    span {
+      display: inline;
+    }
+  }
+`;
+
+export const NavItem = styled.button<{ $active?: boolean; $collapsed?: boolean }>`
+  color: ${({ theme }) => theme.colors.textSidebar};
+  border: none;
+  border-radius: 8px;
+  background: ${({ $active }) =>
+    $active ? 'linear-gradient(110deg, #2ca942 10%, #52b934 90%)' : 'transparent'};
   padding: ${({ $collapsed }) => ($collapsed ? '10px 8px' : '10px 12px')};
   font-size: 0.93rem;
   white-space: nowrap;
@@ -97,8 +168,8 @@ export const NavItem = styled.a<{ $active?: boolean; $collapsed?: boolean }>`
   gap: 10px;
   position: relative;
   font-weight: ${({ $active }) => ($active ? 700 : 400)};
-  background: ${({ $active }) =>
-    $active ? 'linear-gradient(110deg, #2ca942 10%, #52b934 90%)' : 'transparent'};
+  text-align: left;
+  cursor: pointer;
 
   &:hover {
     background: ${({ $active }) =>
@@ -218,6 +289,11 @@ export const TopbarAction = styled.button`
   font-weight: 700;
   cursor: pointer;
   background: linear-gradient(110deg, #2ca942 10%, #52b934 90%);
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
 `;
 
 export const Content = styled.main`
