@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { login } from '../services/api/auth-api';
+import { setAuthSession } from '../services/auth-session';
 import type { AuthUser } from '../types/auth';
 
 type LoginState = {
@@ -13,7 +14,7 @@ const INITIAL_STATE: LoginState = {
   password: '',
 };
 
-export function useLoginForm() {
+export function useLoginForm(onSuccess: () => void) {
   const [form, setForm] = useState<LoginState>(INITIAL_STATE);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -31,8 +32,9 @@ export function useLoginForm() {
         password: form.password,
       });
 
-      localStorage.setItem('sctec.accessToken', result.accessToken);
+      setAuthSession(result.accessToken, result.user);
       setUser(result.user);
+      onSuccess();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Erro inesperado no login';

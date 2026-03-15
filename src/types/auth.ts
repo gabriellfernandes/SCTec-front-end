@@ -8,6 +8,7 @@ export type AuthUser = {
   name: string;
   email: string;
   role: 'admin' | 'editor' | 'viewer';
+  active: boolean;
 };
 
 export type LoginResponse = {

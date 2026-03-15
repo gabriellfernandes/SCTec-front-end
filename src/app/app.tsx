@@ -1,5 +1,5 @@
-import { EnterprisesDashboardPage } from '../pages/dashboard/enterprises-dashboard-page';
+import { AppRouter } from './router';
 
 export function App() {
-  return <EnterprisesDashboardPage />;
+  return <AppRouter />;
 }

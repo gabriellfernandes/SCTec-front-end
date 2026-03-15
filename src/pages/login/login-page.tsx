@@ -1,7 +1,11 @@
 import { LoginForm } from '../../components/auth/login-form';
 import { useLoginForm } from '../../hooks/use-login-form';
 
-export function LoginPage() {
+type LoginPageProps = {
+  onSuccess: () => void;
+};
+
+export function LoginPage({ onSuccess }: LoginPageProps) {
   const {
     form,
     user,
@@ -9,7 +13,7 @@ export function LoginPage() {
     errorMessage,
     updateField,
     handleSubmit,
-  } = useLoginForm();
+  } = useLoginForm(onSuccess);
 
   return (
     <main className="login-page">
