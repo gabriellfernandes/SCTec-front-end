@@ -26,7 +26,12 @@ function DashboardRoute() {
   const { module } = useParams();
   const [isReady, setIsReady] = useState(false);
 
-  const activeModule = module === 'segments' ? 'segments' : 'companies';
+  const activeModule =
+    module === 'segments'
+      ? 'segments'
+      : module === 'cities'
+        ? 'cities'
+        : 'companies';
 
   const token = getAccessToken();
 

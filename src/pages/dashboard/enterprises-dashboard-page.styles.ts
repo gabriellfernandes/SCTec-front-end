@@ -146,6 +146,26 @@ export const TableWrap = styled.div`
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
+
+  th[data-sortable='true'] {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  th[data-sortable='true']:hover {
+    background: #ecf3fd;
+  }
+
+  .sort-indicator {
+    display: inline-block;
+    min-width: 24px;
+    margin-left: 6px;
+    color: #2e5f93;
+    font-weight: 800;
+    font-size: 1.22rem;
+    line-height: 1;
+  }
 `;
 
 export const ActionsCell = styled.td`
@@ -229,6 +249,15 @@ export const ModalBody = styled.div`
     border-radius: 8px;
     padding: 0 10px;
     background: #f9fbff;
+  }
+
+  select {
+    height: 36px;
+    border: 1px solid #cfd9e8;
+    border-radius: 8px;
+    padding: 0 10px;
+    background: #f9fbff;
+    color: #1f3658;
   }
 
   p {

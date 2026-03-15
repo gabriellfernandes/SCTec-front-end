@@ -1,11 +1,11 @@
-export type Segment = {
+export type City = {
   id: string;
   name: string;
   createdAt: string;
   updatedAt: string;
 };
 
-export type SegmentSearch = {
+export type CitySearch = {
   name?: string;
   page?: number;
   limit?: number;

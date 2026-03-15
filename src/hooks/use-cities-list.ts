@@ -1,32 +1,32 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ApiHttpError,
-  createSegment,
-  deleteSegment,
-  listSegments,
-  updateSegment,
-} from '../services/api/segment-api';
-import type { Segment, SegmentSearch } from '../types/segment';
+  createCity,
+  deleteCity,
+  listCities,
+  updateCity,
+} from '../services/api/city-api';
+import type { City, CitySearch } from '../types/city';
 
-type SegmentsFilters = {
+type CitiesFilters = {
   name: string;
   limit: number;
   sort: 'name' | 'createdAt' | 'updatedAt';
   order: 'ASC' | 'DESC';
 };
 
-const INITIAL_FILTERS: SegmentsFilters = {
+const INITIAL_FILTERS: CitiesFilters = {
   name: '',
   limit: 10,
   sort: 'name',
   order: 'ASC',
 };
 
-type UseSegmentsListResult = {
-  items: Segment[];
+type UseCitiesListResult = {
+  items: City[];
   isLoading: boolean;
   errorMessage: string;
-  filters: SegmentsFilters;
+  filters: CitiesFilters;
   page: number;
   total: number;
   totalPages: number;
@@ -44,8 +44,8 @@ type UseSegmentsListResult = {
   refresh: () => Promise<void>;
 };
 
-export function useSegmentsList(token: string | null): UseSegmentsListResult {
-  const [items, setItems] = useState<Segment[]>([]);
+export function useCitiesList(token: string | null): UseCitiesListResult {
+  const [items, setItems] = useState<City[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [page, setPage] = useState(1);
@@ -53,10 +53,10 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
   const [totalPages, setTotalPages] = useState(1);
   const [unauthorized, setUnauthorized] = useState(false);
   const [mutationError, setMutationError] = useState('');
-  const [filters, setFilters] = useState<SegmentsFilters>(INITIAL_FILTERS);
+  const [filters, setFilters] = useState<CitiesFilters>(INITIAL_FILTERS);
   const [debouncedName, setDebouncedName] = useState('');
 
-  const query = useMemo<SegmentSearch>(
+  const query = useMemo<CitySearch>(
     () => ({
       name: debouncedName || undefined,
       page,
@@ -93,7 +93,7 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
     setUnauthorized(false);
 
     try {
-      const result = await listSegments(token, query);
+      const result = await listCities(token, query);
       setItems(result.items);
       setTotal(result.total);
       setTotalPages(result.totalPages || 1);
@@ -108,7 +108,7 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
       }
 
       const message =
-        error instanceof Error ? error.message : 'Erro ao carregar segmentos';
+        error instanceof Error ? error.message : 'Erro ao carregar municipios';
       setErrorMessage(message);
       setItems([]);
       setTotal(0);
@@ -127,7 +127,7 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
     setMutationError('');
 
     try {
-      await createSegment(token, { name });
+      await createCity(token, { name });
       await refresh();
       return true;
     } catch (error) {
@@ -137,7 +137,7 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
       }
 
       const message =
-        error instanceof Error ? error.message : 'Erro ao criar segmento';
+        error instanceof Error ? error.message : 'Erro ao criar municipio';
       setMutationError(message);
       return false;
     }
@@ -152,7 +152,7 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
     setMutationError('');
 
     try {
-      await updateSegment(token, id, { name });
+      await updateCity(token, id, { name });
       await refresh();
       return true;
     } catch (error) {
@@ -162,7 +162,7 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
       }
 
       const message =
-        error instanceof Error ? error.message : 'Erro ao atualizar segmento';
+        error instanceof Error ? error.message : 'Erro ao atualizar municipio';
       setMutationError(message);
       return false;
     }
@@ -177,7 +177,7 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
     setMutationError('');
 
     try {
-      await deleteSegment(token, id);
+      await deleteCity(token, id);
       await refresh();
       return true;
     } catch (error) {
@@ -187,7 +187,7 @@ export function useSegmentsList(token: string | null): UseSegmentsListResult {
       }
 
       const message =
-        error instanceof Error ? error.message : 'Erro ao excluir segmento';
+        error instanceof Error ? error.message : 'Erro ao excluir municipio';
       setMutationError(message);
       return false;
     }

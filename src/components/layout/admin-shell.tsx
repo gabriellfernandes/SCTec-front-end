@@ -24,8 +24,8 @@ import {
 } from './admin-shell.styles';
 
 type AdminShellProps = {
-  activeModule: 'companies' | 'segments';
-  onChangeModule: (module: 'companies' | 'segments') => void;
+  activeModule: 'companies' | 'cities' | 'segments';
+  onChangeModule: (module: 'companies' | 'cities' | 'segments') => void;
   onCreateClick?: () => void;
   canCreate?: boolean;
   userName?: string;
@@ -83,7 +83,14 @@ export function AdminShell({
             <NavLabel $hidden={!isSidebarOpen}>Empresas</NavLabel>
           </NavItem>
 
-          <NavItem type="button" $collapsed={!isSidebarOpen} data-label="Municipios">
+          <NavItem
+            type="button"
+            $active={activeModule === 'cities'}
+            $collapsed={!isSidebarOpen}
+            aria-current={activeModule === 'cities' ? 'page' : undefined}
+            data-label="Municipios"
+            onClick={() => onChangeModule('cities')}
+          >
             <NavIcon aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path d="M4 20V9h6v11M10 20V5h10v15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -165,7 +172,9 @@ export function AdminShell({
               <strong>
                 {activeModule === 'segments'
                   ? 'Gestao de segmentos'
-                  : 'Gestao de empresas'}
+                  : activeModule === 'cities'
+                    ? 'Gestao de municipios'
+                    : 'Gestao de empresas'}
               </strong>
             </div>
           </TopbarLeft>
