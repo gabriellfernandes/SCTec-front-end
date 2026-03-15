@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { AuthGuard } from './auth-guard';
 import { LoginPage } from '../pages/login/login-page';
 import { EnterprisesDashboardPage } from '../pages/dashboard/enterprises-dashboard-page';
+import { EnterpriseFormPage } from '../pages/enterprise/enterprise-form-page';
 import { getAccessToken, setAuthUser, clearAuthSession } from '../services/auth-session';
 import { me } from '../services/api/auth-api';
 
@@ -15,10 +16,10 @@ function LoginRoute() {
   const navigate = useNavigate();
 
   if (hasAccessToken()) {
-    return <Navigate to="/dashboard/segments" replace />;
+    return <Navigate to="/dashboard/companies" replace />;
   }
 
-  return <LoginPage onSuccess={() => navigate('/dashboard/segments', { replace: true })} />;
+  return <LoginPage onSuccess={() => navigate('/dashboard/companies', { replace: true })} />;
 }
 
 function DashboardRoute() {
@@ -96,11 +97,19 @@ const router = createBrowserRouter([
         path: '/dashboard/:module',
         element: <DashboardRoute />,
       },
+      {
+        path: '/enterprises/new',
+        element: <EnterpriseFormPage mode="create" />,
+      },
+      {
+        path: '/enterprises/:id/edit',
+        element: <EnterpriseFormPage mode="edit" />,
+      },
     ],
   },
   {
     path: '*',
-    element: <Navigate to="/dashboard/segments" replace />,
+    element: <Navigate to="/dashboard/companies" replace />,
   },
 ]);
 

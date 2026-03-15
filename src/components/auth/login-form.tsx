@@ -1,5 +1,13 @@
 import type { FormEventHandler } from 'react';
 import { useState } from 'react';
+import {
+  ErrorToast,
+  FieldBlock,
+  Form,
+  PasswordField,
+  SubmitButton,
+  TogglePasswordButton,
+} from './login-form.styles';
 
 type LoginFormProps = {
   email: string;
@@ -23,8 +31,8 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <form className="login-form" onSubmit={onSubmit}>
-      <div className="field-block">
+    <Form onSubmit={onSubmit}>
+      <FieldBlock>
         <label htmlFor="email">E-mail</label>
         <input
           id="email"
@@ -36,11 +44,11 @@ export function LoginForm({
           inputMode="email"
           required
         />
-      </div>
+      </FieldBlock>
 
-      <div className="field-block">
+      <FieldBlock>
         <label htmlFor="password">Senha</label>
-        <div className="password-field">
+        <PasswordField>
           <input
             id="password"
             type={showPassword ? 'text' : 'password'}
@@ -51,9 +59,8 @@ export function LoginForm({
             minLength={8}
             required
           />
-          <button
+          <TogglePasswordButton
             type="button"
-            className="toggle-password"
             onClick={() => setShowPassword((current) => !current)}
             aria-label={showPassword ? 'Ocultar senha' : 'Visualizar senha'}
             title={showPassword ? 'Ocultar senha' : 'Visualizar senha'}
@@ -89,19 +96,19 @@ export function LoginForm({
                 />
               </svg>
             )}
-          </button>
-        </div>
-      </div>
+          </TogglePasswordButton>
+        </PasswordField>
+      </FieldBlock>
 
       {errorMessage ? (
-        <div className="error-toast" role="alert" aria-live="polite">
+        <ErrorToast role="alert" aria-live="polite">
           {errorMessage}
-        </div>
+        </ErrorToast>
       ) : null}
 
-      <button className="login-submit-button" type="submit" disabled={isLoading}>
+      <SubmitButton type="submit" disabled={isLoading}>
         {isLoading ? 'Entrando...' : 'Entrar'}
-      </button>
-    </form>
+      </SubmitButton>
+    </Form>
   );
 }

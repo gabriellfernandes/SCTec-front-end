@@ -202,6 +202,65 @@ export const IconActionButton = styled.button<{ $danger?: boolean }>`
   }
 `;
 
+export const StatusBadgeButton = styled.button<{ $active: boolean }>`
+  height: 26px;
+  border-radius: 999px;
+  padding: 0 10px;
+  border: 1px solid ${({ $active }) => ($active ? '#9cd7a8' : '#f6c2c9')};
+  background: ${({ $active }) => ($active ? '#eaf8ed' : '#fff4f6')};
+  color: ${({ $active }) => ($active ? '#1f7f35' : '#b4232e')};
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+`;
+
+export const ContactsSummaryButton = styled.button`
+  height: 28px;
+  border: 1px solid #c9dbf1;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: #f3f8ff;
+  color: #2f5f94;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+`;
+
+export const ContactsList = styled.ul`
+  margin: 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 10px;
+
+  li {
+    color: #47658c;
+    font-size: 0.84rem;
+    line-height: 1.35;
+  }
+
+  strong {
+    color: #1f3658;
+    font-size: 0.88rem;
+  }
+
+  small {
+    display: block;
+    margin-top: 2px;
+    color: #5f789b;
+    font-size: 0.78rem;
+  }
+`;
+
 export const ModalBackdrop = styled.div`
   position: fixed;
   inset: 0;

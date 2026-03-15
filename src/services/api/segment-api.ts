@@ -104,6 +104,13 @@ async function handleMutationError(response: Response): Promise<never> {
     ? payload?.message[0]
     : payload?.message;
 
+  if (response.status === 409) {
+    throw new ApiHttpError(
+      'Nao foi possivel excluir segmento porque existem empresas vinculadas',
+      response.status,
+    );
+  }
+
   throw new ApiHttpError(message ?? 'Falha ao processar segmento', response.status);
 }
 

@@ -116,15 +116,6 @@ export function AdminShell({
             <NavLabel $hidden={!isSidebarOpen}>Segmentos</NavLabel>
           </NavItem>
 
-          <NavItem type="button" $collapsed={!isSidebarOpen} data-label="Contatos">
-            <NavIcon aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="8" r="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
-                <path d="M5 19c0-3.1 3.1-5 7-5s7 1.9 7 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-              </svg>
-            </NavIcon>
-            <NavLabel $hidden={!isSidebarOpen}>Contatos</NavLabel>
-          </NavItem>
         </Nav>
 
         <SidebarFooter $sidebarOpen={isSidebarOpen}>

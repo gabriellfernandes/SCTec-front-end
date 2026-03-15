@@ -25,6 +25,9 @@ import {
   ModalHeader,
   PrimaryButton,
   RowActions,
+  ContactsSummaryButton,
+  ContactsList,
+  StatusBadgeButton,
   Toast,
 } from './enterprises-dashboard-page.styles';
 import { getAuthUser, getAccessToken, clearAuthSession } from '../../services/auth-session';
@@ -32,6 +35,8 @@ import { useToast } from '../../hooks/use-toast';
 import { useCitiesList } from '../../hooks/use-cities-list';
 import { useScMunicipalities } from '../../hooks/use-sc-municipalities';
 import { SelectField } from '../../components/form/select-field';
+import { useEnterprisesList } from '../../hooks/use-enterprises-list';
+import { useEnterpriseReferenceOptions } from '../../hooks/use-enterprise-reference-options';
 
 type EnterprisesDashboardPageProps = {
   activeModule: 'companies' | 'cities' | 'segments';
@@ -133,6 +138,30 @@ export function EnterprisesDashboardPage({
     deleteItem: deleteCity,
   } = useCitiesList(token);
   const {
+    items: enterprises,
+    isLoading: isLoadingEnterprises,
+    errorMessage: errorEnterprises,
+    filters: enterpriseFilters,
+    page: enterprisePage,
+    total: enterpriseTotal,
+    totalPages: enterpriseTotalPages,
+    setCityFilter: setEnterpriseCityFilter,
+    setSegmentFilter: setEnterpriseSegmentFilter,
+    setLimit: setEnterpriseLimit,
+    setSort: setEnterpriseSort,
+    toggleOrder: toggleEnterpriseOrder,
+    goToPage: goToEnterprisePage,
+    unauthorized: unauthorizedEnterprises,
+    updateItem: updateEnterprise,
+    deleteItem: deleteEnterprise,
+    mutationError: enterpriseMutationError,
+  } = useEnterprisesList(token);
+  const {
+    isLoading: isLoadingEnterpriseReferences,
+    cities: enterpriseCities,
+    segments: enterpriseSegments,
+  } = useEnterpriseReferenceOptions(token);
+  const {
     isLoading: isLoadingScMunicipalities,
     errorMessage: scMunicipalitiesError,
     states,
@@ -147,21 +176,31 @@ export function EnterprisesDashboardPage({
   const [deletingSegmentId, setDeletingSegmentId] = useState<string | null>(null);
   const [editingCityId, setEditingCityId] = useState<string | null>(null);
   const [deletingCityId, setDeletingCityId] = useState<string | null>(null);
+  const [deletingEnterpriseId, setDeletingEnterpriseId] = useState<string | null>(null);
+  const [viewingEnterpriseContactsId, setViewingEnterpriseContactsId] = useState<string | null>(
+    null,
+  );
   const [formName, setFormName] = useState('');
 
   const visibleRange = computeVisibleRange(page, filters.limit, total);
   const hasItems = total > 0;
   const cityVisibleRange = computeVisibleRange(cityPage, cityFilters.limit, cityTotal);
   const cityHasItems = cityTotal > 0;
+  const enterpriseVisibleRange = computeVisibleRange(
+    enterprisePage,
+    enterpriseFilters.limit,
+    enterpriseTotal,
+  );
+  const enterpriseHasItems = enterpriseTotal > 0;
 
   useEffect(() => {
-    if (!unauthorized && !unauthorizedCities) {
+    if (!unauthorized && !unauthorizedCities && !unauthorizedEnterprises) {
       return;
     }
 
     clearAuthSession();
     navigate('/login', { replace: true });
-  }, [unauthorized, unauthorizedCities, navigate]);
+  }, [unauthorized, unauthorizedCities, unauthorizedEnterprises, navigate]);
 
   useEffect(() => {
     if (!mutationError && !cityMutationError) {
@@ -251,6 +290,42 @@ export function EnterprisesDashboardPage({
     setSort(sort);
   }
 
+  function handleEnterpriseHeaderSort(
+    sort: 'name' | 'ownerName' | 'active' | 'cityName' | 'segmentName',
+  ): void {
+    if (enterpriseFilters.sort === sort) {
+      toggleEnterpriseOrder();
+      return;
+    }
+
+    setEnterpriseSort(sort);
+  }
+
+  async function handleToggleEnterpriseStatus(
+    id: string,
+    nextActive: boolean,
+  ): Promise<void> {
+    const enterprise = enterprises.find((item) => item.id === id);
+
+    if (!enterprise) {
+      return;
+    }
+
+    const success = await updateEnterprise(id, {
+      name: enterprise.name,
+      ownerName: enterprise.ownerName,
+      cityId: enterprise.city?.id,
+      segmentId: enterprise.segment?.id,
+      active: nextActive,
+    });
+
+    if (success) {
+      showToast('success', nextActive ? 'Empresa ativada com sucesso.' : 'Empresa desativada com sucesso.');
+    } else {
+      showToast('error', enterpriseMutationError || 'Nao foi possivel atualizar o status da empresa.');
+    }
+  }
+
   async function handleCreateSubmit(): Promise<void> {
     const name = formName.trim();
 
@@ -319,6 +394,21 @@ export function EnterprisesDashboardPage({
   }
 
   async function handleDeleteConfirm(): Promise<void> {
+    if (activeModule === 'companies') {
+      if (!deletingEnterpriseId) {
+        return;
+      }
+
+      const successEnterprise = await deleteEnterprise(deletingEnterpriseId);
+      if (successEnterprise) {
+        setDeletingEnterpriseId(null);
+        showToast('success', 'Empresa excluida com sucesso.');
+      } else {
+        showToast('error', enterpriseMutationError || 'Nao foi possivel excluir a empresa.');
+      }
+      return;
+    }
+
     if (activeModule === 'cities') {
       if (!deletingCityId) {
         return;
@@ -350,6 +440,343 @@ export function EnterprisesDashboardPage({
   function handleLogout(): void {
     clearAuthSession();
     navigate('/login', { replace: true });
+  }
+
+  function handleCreateEnterprise(): void {
+    navigate('/enterprises/new');
+  }
+
+  function handleEditEnterprise(id: string): void {
+    navigate(`/enterprises/${id}/edit`);
+  }
+
+  const viewingEnterprise =
+    viewingEnterpriseContactsId !== null
+      ? enterprises.find((enterprise) => enterprise.id === viewingEnterpriseContactsId) ?? null
+      : null;
+
+  if (activeModule === 'companies') {
+    return (
+      <AdminShell
+        activeModule={activeModule}
+        onChangeModule={onChangeModule}
+        onCreateClick={canWrite ? handleCreateEnterprise : undefined}
+        canCreate={canWrite}
+        userName={authUser?.name}
+        userRole={authUser?.role ?? null}
+        onLogout={handleLogout}
+      >
+        <PanelCard>
+          <PanelHeader>
+            <h2>Empresas</h2>
+
+            <FiltersInline>
+              <select
+                value={enterpriseFilters.cityId}
+                onChange={(event) => setEnterpriseCityFilter(event.target.value)}
+                disabled={isLoadingEnterpriseReferences}
+              >
+                <option value="">Todos os municipios</option>
+                {enterpriseCities.map((city) => (
+                  <option key={city.id} value={city.id}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={enterpriseFilters.segmentId}
+                onChange={(event) => setEnterpriseSegmentFilter(event.target.value)}
+                disabled={isLoadingEnterpriseReferences}
+              >
+                <option value="">Todos os segmentos</option>
+                {enterpriseSegments.map((segment) => (
+                  <option key={segment.id} value={segment.id}>
+                    {segment.name}
+                  </option>
+                ))}
+              </select>
+            </FiltersInline>
+          </PanelHeader>
+
+          <TableWrap>
+            {isLoadingEnterprises ? <TableState>Carregando empresas...</TableState> : null}
+            {!isLoadingEnterprises && errorEnterprises ? (
+              <TableState>{errorEnterprises}</TableState>
+            ) : null}
+
+            {!isLoadingEnterprises && !errorEnterprises ? (
+              <table>
+                <thead>
+                  <tr>
+                    <th
+                      data-sortable="true"
+                      onClick={() => handleEnterpriseHeaderSort('name')}
+                    >
+                      Nome{' '}
+                      <span className="sort-indicator">
+                        {getSortIndicator(
+                          enterpriseFilters.sort as 'name' | 'createdAt' | 'updatedAt',
+                          'name',
+                          enterpriseFilters.order,
+                        )}
+                      </span>
+                    </th>
+                    <th
+                      data-sortable="true"
+                      onClick={() => handleEnterpriseHeaderSort('ownerName')}
+                    >
+                      Responsavel{' '}
+                      <span className="sort-indicator">
+                        {enterpriseFilters.sort === 'ownerName'
+                          ? enterpriseFilters.order === 'ASC'
+                            ? '↑'
+                            : '↓'
+                          : '↕'}
+                      </span>
+                    </th>
+                    <th
+                      data-sortable="true"
+                      onClick={() => handleEnterpriseHeaderSort('cityName')}
+                    >
+                      Municipio{' '}
+                      <span className="sort-indicator">
+                        {enterpriseFilters.sort === 'cityName'
+                          ? enterpriseFilters.order === 'ASC'
+                            ? '↑'
+                            : '↓'
+                          : '↕'}
+                      </span>
+                    </th>
+                    <th
+                      data-sortable="true"
+                      onClick={() => handleEnterpriseHeaderSort('segmentName')}
+                    >
+                      Segmento{' '}
+                      <span className="sort-indicator">
+                        {enterpriseFilters.sort === 'segmentName'
+                          ? enterpriseFilters.order === 'ASC'
+                            ? '↑'
+                            : '↓'
+                          : '↕'}
+                      </span>
+                    </th>
+                    <th
+                      data-sortable="true"
+                      onClick={() => handleEnterpriseHeaderSort('active')}
+                    >
+                      Status{' '}
+                      <span className="sort-indicator">
+                        {enterpriseFilters.sort === 'active'
+                          ? enterpriseFilters.order === 'ASC'
+                            ? '↑'
+                            : '↓'
+                          : '↕'}
+                      </span>
+                    </th>
+                    <th>Contatos</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {enterprises.length > 0 ? (
+                    enterprises.map((enterprise) => (
+                      <tr key={enterprise.id}>
+                        <td>{enterprise.name}</td>
+                        <td>{enterprise.ownerName}</td>
+                        <td>{enterprise.city?.name ?? '-'}</td>
+                        <td>{enterprise.segment?.name ?? '-'}</td>
+                        <td>
+                          <StatusBadgeButton
+                            type="button"
+                            $active={enterprise.active}
+                            title={
+                              enterprise.active
+                                ? 'Clique para desativar esta empresa'
+                                : 'Clique para ativar esta empresa'
+                            }
+                            disabled={!canWrite}
+                            onClick={() => void handleToggleEnterpriseStatus(enterprise.id, !enterprise.active)}
+                          >
+                            {enterprise.active ? 'Ativa' : 'Inativa'}
+                          </StatusBadgeButton>
+                        </td>
+                        <td>
+                          <ContactsSummaryButton
+                            type="button"
+                            onClick={() => setViewingEnterpriseContactsId(enterprise.id)}
+                          >
+                            {(enterprise.contacts[0]?.name || 'Sem contato')}
+                            {enterprise.contacts.length > 1 ? ` +${enterprise.contacts.length - 1}` : ''}
+                          </ContactsSummaryButton>
+                        </td>
+                        <ActionsCell>
+                          <RowActions>
+                            <IconActionButton
+                              type="button"
+                              aria-label="Editar empresa"
+                              title="Editar"
+                              onClick={() => handleEditEnterprise(enterprise.id)}
+                              disabled={!canWrite}
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path
+                                  d="M4 20h4l10-10-4-4L4 16v4zM13 7l4 4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.8"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </IconActionButton>
+
+                            <IconActionButton
+                              type="button"
+                              $danger
+                              aria-label="Excluir empresa"
+                              title="Excluir"
+                              onClick={() => setDeletingEnterpriseId(enterprise.id)}
+                              disabled={!canDelete}
+                            >
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path
+                                  d="M5 7h14M9 7V5h6v2M9 10v7M15 10v7M7 7l1 12h8l1-12"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.8"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </IconActionButton>
+                          </RowActions>
+                        </ActionsCell>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7}>Nenhuma empresa encontrada.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            ) : null}
+          </TableWrap>
+
+          <TableFooter>
+            <TableFooterMeta>
+              <p>
+                Pagina {enterpriseHasItems ? enterprisePage : 0} de{' '}
+                {enterpriseHasItems ? enterpriseTotalPages : 0}
+              </p>
+              <label htmlFor="enterprise-page-size">Itens por pagina</label>
+              <select
+                id="enterprise-page-size"
+                value={String(enterpriseFilters.limit)}
+                onChange={(event) => setEnterpriseLimit(Number(event.target.value))}
+              >
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+              <p>
+                Mostrando {enterpriseVisibleRange.first} a {enterpriseVisibleRange.last} de{' '}
+                {enterpriseTotal} empresas
+              </p>
+            </TableFooterMeta>
+
+            <TablePagination>
+              <button
+                type="button"
+                onClick={() => goToEnterprisePage(enterprisePage - 1)}
+                disabled={enterprisePage <= 1}
+              >
+                Anterior
+              </button>
+              <button type="button" className="active">
+                {enterprisePage}
+              </button>
+              <button
+                type="button"
+                onClick={() => goToEnterprisePage(enterprisePage + 1)}
+                disabled={enterprisePage >= enterpriseTotalPages}
+              >
+                Proxima
+              </button>
+            </TablePagination>
+          </TableFooter>
+        </PanelCard>
+
+        {deletingEnterpriseId && canDelete ? (
+          <ModalBackdrop>
+            <ModalCard>
+              <ModalHeader>
+                <h3>Confirmar exclusao</h3>
+              </ModalHeader>
+
+              <ModalBody>
+                <p>Deseja realmente excluir esta empresa?</p>
+                {enterpriseMutationError ? <ModalError>{enterpriseMutationError}</ModalError> : null}
+              </ModalBody>
+
+              <ModalFooter>
+                <GhostButton type="button" onClick={() => setDeletingEnterpriseId(null)}>
+                  Cancelar
+                </GhostButton>
+                <DangerButton type="button" onClick={() => void handleDeleteConfirm()}>
+                  Excluir
+                </DangerButton>
+              </ModalFooter>
+            </ModalCard>
+          </ModalBackdrop>
+        ) : null}
+
+        {viewingEnterprise ? (
+          <ModalBackdrop>
+            <ModalCard>
+              <ModalHeader>
+                <h3>Contatos da empresa</h3>
+              </ModalHeader>
+
+              <ModalBody>
+                {viewingEnterprise.contacts.length > 0 ? (
+                  <ContactsList>
+                    {viewingEnterprise.contacts.map((contact) => (
+                      <li key={contact.id}>
+                        <strong>
+                          {contact.name?.trim() || 'Contato sem nome'}
+                          {' - '}
+                          {contact.department?.trim() || 'Sem departamento'}
+                        </strong>
+                        <small>
+                          Emails:{' '}
+                          {contact.emails.map((email) => email.address).join(', ') || '-'}
+                        </small>
+                        <small>
+                          Telefones:{' '}
+                          {contact.phones.map((phone) => phone.number).join(', ') || '-'}
+                        </small>
+                      </li>
+                    ))}
+                  </ContactsList>
+                ) : (
+                  <p>Esta empresa nao possui contatos cadastrados.</p>
+                )}
+              </ModalBody>
+
+              <ModalFooter>
+                <GhostButton type="button" onClick={() => setViewingEnterpriseContactsId(null)}>
+                  Fechar
+                </GhostButton>
+              </ModalFooter>
+            </ModalCard>
+          </ModalBackdrop>
+        ) : null}
+
+        {toast.visible ? <Toast $type={toast.type}>{toast.message}</Toast> : null}
+      </AdminShell>
+    );
   }
 
   if (activeModule === 'cities') {
@@ -698,16 +1125,7 @@ export function EnterprisesDashboardPage({
   }
 
   if (activeModule !== 'segments') {
-    return (
-      <AdminShell activeModule={activeModule} onChangeModule={onChangeModule}>
-        <PanelCard>
-          <PanelHeader>
-            <h2>Empresas</h2>
-          </PanelHeader>
-          <TableState>Modulo de empresas sera implementado no proximo commit.</TableState>
-        </PanelCard>
-      </AdminShell>
-    );
+    return null;
   }
 
   return (
