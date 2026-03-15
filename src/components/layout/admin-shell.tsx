@@ -1,5 +1,24 @@
 import type { ReactNode } from 'react';
 import { useState } from 'react';
+import {
+  BrandBlock,
+  BrandKicker,
+  Content,
+  ContentArea,
+  Nav,
+  NavIcon,
+  NavItem,
+  NavLabel,
+  Shell,
+  Sidebar,
+  SidebarBackdrop,
+  SidebarTitle,
+  SidebarToggle,
+  Topbar,
+  TopbarAction,
+  TopbarLeft,
+  TopbarOverline,
+} from './admin-shell.styles';
 
 type AdminShellProps = {
   children: ReactNode;
@@ -13,95 +32,94 @@ export function AdminShell({ children }: AdminShellProps) {
   }
 
   return (
-    <div
-      className={`admin-shell ${isSidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}
-    >
-      <button
+    <Shell $sidebarOpen={isSidebarOpen}>
+      <SidebarBackdrop
         type="button"
-        className="sidebar-backdrop"
+        $visible={isSidebarOpen}
         onClick={toggleSidebar}
         aria-label="Fechar menu lateral"
       />
 
-      <aside className="admin-sidebar">
-        <div className="brand-block">
-          <p className="brand-kicker">SCTec</p>
-          <h1 className="sidebar-title">Painel</h1>
-        </div>
+      <Sidebar $sidebarOpen={isSidebarOpen}>
+        <BrandBlock $sidebarOpen={isSidebarOpen}>
+          <BrandKicker>SCTec</BrandKicker>
+          <SidebarTitle $hidden={!isSidebarOpen}>Painel</SidebarTitle>
+        </BrandBlock>
 
-        <nav className="admin-nav" aria-label="Navegacao principal">
-          <a
-            className="admin-nav-item active"
+        <Nav aria-label="Navegacao principal">
+          <NavItem
+            $active
+            $collapsed={!isSidebarOpen}
             href="#"
             aria-current="page"
             data-label="Empresas"
           >
-            <span className="nav-icon" aria-hidden="true">
+            <NavIcon aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path d="M4 20V8l8-4 8 4v12H4z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M9 20v-5h6v5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-            </span>
-            <span className="nav-label">Empresas</span>
-          </a>
-          <a className="admin-nav-item" href="#" data-label="Municipios">
-            <span className="nav-icon" aria-hidden="true">
+            </NavIcon>
+            <NavLabel $hidden={!isSidebarOpen}>Empresas</NavLabel>
+          </NavItem>
+
+          <NavItem $collapsed={!isSidebarOpen} href="#" data-label="Municipios">
+            <NavIcon aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path d="M4 20V9h6v11M10 20V5h10v15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 <path d="M14 9h2M14 13h2M14 17h2" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
-            </span>
-            <span className="nav-label">Municipios</span>
-          </a>
-          <a className="admin-nav-item" href="#" data-label="Segmentos">
-            <span className="nav-icon" aria-hidden="true">
+            </NavIcon>
+            <NavLabel $hidden={!isSidebarOpen}>Municipios</NavLabel>
+          </NavItem>
+
+          <NavItem $collapsed={!isSidebarOpen} href="#" data-label="Segmentos">
+            <NavIcon aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
-            </span>
-            <span className="nav-label">Segmentos</span>
-          </a>
-          <a className="admin-nav-item" href="#" data-label="Contatos">
-            <span className="nav-icon" aria-hidden="true">
+            </NavIcon>
+            <NavLabel $hidden={!isSidebarOpen}>Segmentos</NavLabel>
+          </NavItem>
+
+          <NavItem $collapsed={!isSidebarOpen} href="#" data-label="Contatos">
+            <NavIcon aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <circle cx="12" cy="8" r="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
                 <path d="M5 19c0-3.1 3.1-5 7-5s7 1.9 7 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
-            </span>
-            <span className="nav-label">Contatos</span>
-          </a>
-        </nav>
-      </aside>
+            </NavIcon>
+            <NavLabel $hidden={!isSidebarOpen}>Contatos</NavLabel>
+          </NavItem>
+        </Nav>
+      </Sidebar>
 
-      <section className="admin-content-area">
-        <header className="admin-topbar">
-          <div className="topbar-left">
-            <button
+      <ContentArea>
+        <Topbar>
+          <TopbarLeft>
+            <SidebarToggle
               type="button"
-              className="sidebar-toggle"
               onClick={toggleSidebar}
               aria-label={isSidebarOpen ? 'Recolher menu lateral' : 'Abrir menu lateral'}
             >
               <span />
               <span />
               <span />
-            </button>
+            </SidebarToggle>
 
             <div>
-              <p className="topbar-overline">Area administrativa</p>
+              <TopbarOverline>Area administrativa</TopbarOverline>
               <strong>Gestao de empresas</strong>
             </div>
-          </div>
+          </TopbarLeft>
 
           <div>
-            <button type="button" className="topbar-action">
-              Novo cadastro
-            </button>
+            <TopbarAction type="button">Novo cadastro</TopbarAction>
           </div>
-        </header>
+        </Topbar>
 
-        <main className="admin-content">{children}</main>
-      </section>
-    </div>
+        <Content>{children}</Content>
+      </ContentArea>
+    </Shell>
   );
 }

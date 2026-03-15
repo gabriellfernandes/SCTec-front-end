@@ -1,4 +1,18 @@
 import { AdminShell } from '../../components/layout/admin-shell';
+import {
+  FiltersInline,
+  KpiCard,
+  KpiGrid,
+  KpiHead,
+  KpiValue,
+  PanelCard,
+  PanelHeader,
+  StatusChip,
+  TableFooter,
+  TableFooterMeta,
+  TablePagination,
+  TableWrap,
+} from './enterprises-dashboard-page.styles';
 
 const rows = [
   {
@@ -24,37 +38,41 @@ const rows = [
 export function EnterprisesDashboardPage() {
   return (
     <AdminShell>
-      <section className="kpi-grid">
-        <article className="kpi-card">
-          <div className="kpi-head">
+      <KpiGrid>
+        <KpiCard>
+          <KpiHead>
             <p>Total</p>
-          </div>
-          <strong>128</strong>
-        </article>
-        <article className="kpi-card">
-          <div className="kpi-head">
-            <p>Ativos</p>
-          </div>
-          <strong>97</strong>
-        </article>
-        <article className="kpi-card">
-          <div className="kpi-head">
-            <p>Inativos</p>
-          </div>
-          <strong>31</strong>
-        </article>
-        <article className="kpi-card">
-          <div className="kpi-head">
-            <p>Municipios</p>
-          </div>
-          <strong>22</strong>
-        </article>
-      </section>
+          </KpiHead>
+          <KpiValue>128</KpiValue>
+        </KpiCard>
 
-      <section className="panel-card">
-        <header className="panel-header">
+        <KpiCard>
+          <KpiHead>
+            <p>Ativos</p>
+          </KpiHead>
+          <KpiValue>97</KpiValue>
+        </KpiCard>
+
+        <KpiCard>
+          <KpiHead>
+            <p>Inativos</p>
+          </KpiHead>
+          <KpiValue>31</KpiValue>
+        </KpiCard>
+
+        <KpiCard>
+          <KpiHead>
+            <p>Municipios</p>
+          </KpiHead>
+          <KpiValue>22</KpiValue>
+        </KpiCard>
+      </KpiGrid>
+
+      <PanelCard>
+        <PanelHeader>
           <h2>Empresas</h2>
-          <div className="filters-inline">
+
+          <FiltersInline>
             <input type="search" placeholder="Buscar por nome" />
 
             <select defaultValue="">
@@ -76,10 +94,10 @@ export function EnterprisesDashboardPage() {
               <option value="Ativo">Ativo</option>
               <option value="Inativo">Inativo</option>
             </select>
-          </div>
-        </header>
+          </FiltersInline>
+        </PanelHeader>
 
-        <div className="table-wrap">
+        <TableWrap>
           <table>
             <thead>
               <tr>
@@ -96,22 +114,18 @@ export function EnterprisesDashboardPage() {
                   <td>{row.city}</td>
                   <td>{row.segment}</td>
                   <td>
-                    <span
-                      className={`status-chip ${
-                        row.status === 'Ativo' ? 'active' : 'inactive'
-                      }`}
-                    >
+                    <StatusChip $active={row.status === 'Ativo'}>
                       {row.status}
-                    </span>
+                    </StatusChip>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </TableWrap>
 
-        <footer className="table-footer">
-          <div className="table-footer-meta">
+        <TableFooter>
+          <TableFooterMeta>
             <label htmlFor="page-size">Itens por pagina</label>
             <select id="page-size" defaultValue="10">
               <option value="10">10</option>
@@ -119,9 +133,9 @@ export function EnterprisesDashboardPage() {
               <option value="50">50</option>
             </select>
             <p>Mostrando 1-3 de 128 empresas</p>
-          </div>
+          </TableFooterMeta>
 
-          <div className="table-pagination">
+          <TablePagination>
             <button type="button">Anterior</button>
             <button type="button" className="active">
               1
@@ -129,9 +143,9 @@ export function EnterprisesDashboardPage() {
             <button type="button">2</button>
             <button type="button">3</button>
             <button type="button">Proxima</button>
-          </div>
-        </footer>
-      </section>
+          </TablePagination>
+        </TableFooter>
+      </PanelCard>
     </AdminShell>
   );
 }
