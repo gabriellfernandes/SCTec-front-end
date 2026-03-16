@@ -170,6 +170,4 @@ npm run preview
 
 ## Link do vídeo pitch
 
-Adicionar o link público do vídeo (até 3 minutos):
-
-- `https://...`
+- `https://drive.google.com/file/d/1AUmTMw4Ahx6utli9To85rgX0Y_HBaInE/view?usp=sharing`
